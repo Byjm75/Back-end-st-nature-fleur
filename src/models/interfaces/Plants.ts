@@ -1,4 +1,4 @@
-interface Plant {
+interface Plants {
   name: string;
   unitprice_ati: number;
   quantity: number;
@@ -7,4 +7,4 @@ interface Plant {
   url_picture: string;
 }
 
-export default Plant;
+export default Plants;

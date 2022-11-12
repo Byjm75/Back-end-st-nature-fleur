@@ -1,7 +1,7 @@
 import express from "express";
 import cors from "cors";
 import plantRouter from "./routes/PlantRoutes";
-import PlantControllers  from "./controllers/PlantControllers";
+import PlantControllers from "./controllers/PlantControllers";
 import AppDataSource from "./data-source";
 
 AppDataSource.initialize().then(async () => {
@@ -18,7 +18,7 @@ AppDataSource.initialize().then(async () => {
   app.use("/api/plant", PlantControllers);
   app.use("/api/plant", plantRouter);
 
-  app.listen(8080, () => {
-    console.log(`L'api est en route sur l'adresse localhost:8080`);
+  app.listen(process.env.PORT, () => {
+    console.log(`L'api est en route sur l'adresse localhost:${process.env.PORT}`);
   });
 });
