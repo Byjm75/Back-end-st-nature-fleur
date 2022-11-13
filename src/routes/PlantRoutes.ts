@@ -13,5 +13,10 @@ plantRouter.get('/:id', (req, res) => {
 plantRouter.post('/', (req, res) => {
     plantControllers.postPlant(req, res);
 })
+/*
+plantRouter.put('/', (req, res) => {
+  plantControllers.putPlant(req, res);
+});
+**/
 
 export default plantRouter;

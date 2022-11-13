@@ -1,5 +1,6 @@
 import { Request, Response } from "express";
 import PlantService from "../services/PlantService";
+import Plants from "../models/interfaces/Plants";
 
 export class PlantControllers {
   private plantService = new PlantService();
@@ -22,14 +23,34 @@ export class PlantControllers {
     }
   }
   async postPlant(req: Request, res: Response) {
+    const newPlant: Plants = { ...req.body };
     try {
-      const newPlant = await this.plantService.postPlant();
-      res.send({ status: "OK", data: [newPlant] });
+      await this.plantService.postPlant(newPlant);
+      res.send({
+        status: "OK",
+        message: "nouvelle plante créé",
+        data: newPlant,
+      });
     } catch (error) {
       res.status(500).send({ status: "Failed", message: error });
     }
-}
-
-
+  }
+  /*
+  async putPlant(req: Request, res: Response) {
+    const updatePlant: Plants = { ...req.body };
+    const paramId = req.params.id;
+    try {
+      const id = Number(req.params.id);
+      await this.plantService.putPlant(id, updatePlant);
+      res.send({
+        status: "OK",
+        message: "Cette plante à été modifier",
+        data: updatePlant,
+      });
+    } catch (error) {
+      res.status(500).send({ status: "Failed", message: error });
+    }
+  }
+  **/
 }
 export default PlantControllers;

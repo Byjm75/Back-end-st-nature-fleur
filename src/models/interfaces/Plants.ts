@@ -1,5 +1,5 @@
 interface Plants {
-  id: number;
+  id?: number;
   name: string;
   unitprice_ati: number;
   quantity: number;
