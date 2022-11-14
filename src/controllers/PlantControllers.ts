@@ -8,7 +8,7 @@ export class PlantControllers {
   async getAll(req: Request, res: Response) {
     try {
       const allPlant = await this.plantService.getAll();
-      res.send({ status: "OK", data: [allPlant] });
+      res.send({ status: "OK", data: allPlant });
     } catch (error) {
       res.status(500).send({ status: "Failed", message: error });
     }
@@ -17,7 +17,7 @@ export class PlantControllers {
     try {
       const id = Number(req.params.id);
       const idPlant = await this.plantService.getId(id);
-      res.send({ status: "OK", data: [idPlant] });
+      res.send({ status: "OK", data: idPlant });
     } catch (error) {
       res.status(500).send({ status: "Failed", message: error });
     }
