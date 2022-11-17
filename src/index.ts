@@ -1,6 +1,7 @@
 import express from "express";
 import cors from "cors";
 import plantRouter from "./routes/PlantRoutes";
+import userRouter from "./routes/UsersRoutes";
 import AppDataSource from "./data-source";
 
 AppDataSource.initialize().then(async () => {
@@ -14,6 +15,8 @@ AppDataSource.initialize().then(async () => {
     })
   );
   app.use("/api/plant", plantRouter);
+  app.use("/api/user", userRouter);
+  app.use("/api/user/loging", userRouter);
 
   app.listen(process.env.PORT, () => {
     console.log(
