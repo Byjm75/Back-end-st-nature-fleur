@@ -16,7 +16,7 @@ AppDataSource.initialize().then(async () => {
   );
   app.use("/api/plant", plantRouter);
   app.use("/api/user", userRouter);
-  app.use("/api/user/loging", userRouter);
+  // app.use("/api/user/loging", userRouter);
 
   app.listen(process.env.PORT, () => {
     console.log(
