@@ -3,8 +3,8 @@ import Users from "../models/interfaces/Users";
 
 export class UserService {
   async postUser(newUser: any): Promise<Users> {
-    return AppDataSource.query(`INSERT INTO users(name, hashpass, email)
-      VALUES ('${newUser.name}', '${newUser.passworld}', '${newUser.email}');`);
+    return AppDataSource.query(`INSERT INTO users(name, hashpassword, email)
+      VALUES ('${newUser.name}', '${newUser.hashPassworld}', '${newUser.email}');`);
   }
   async logUser(logingUser: Users): Promise<Users[]> {
     return AppDataSource.query(
@@ -15,3 +15,5 @@ export class UserService {
     return AppDataSource.query(`DELETE FROM users WHERE id = ${id};`);
   }
 }
+
+    // ****** ICI JE GENERE LE JWT ********************

@@ -1,7 +1,7 @@
 interface Users {
   id: number;
   name: string;
-  hashpass: string;
+  hashPassworld: string;
   email: string;
 }
 

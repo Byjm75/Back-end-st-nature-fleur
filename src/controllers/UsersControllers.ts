@@ -7,13 +7,15 @@ import jsonwebtoken from "jsonwebtoken";
 export class UsersControllers {
   private usersService = new UserService();
 
+  /*
+   * ICI INSCRIPTION AU SITE DE USER ET MP GENERE AVEC LE HASH DE BCRYPT
+   **/
   async postUser(req: Request, res: Response) {
     const newUser = { ...req.body };
-    //bcrypt.genSalt(10, (err, salt) => {
-    bcrypt.hash(newUser.passworld, 10, async (err, passworld) => {
-      console.log(passworld);
+    bcrypt.hash(newUser.passworld, 10, async (err, hashPassworld) => {
+      console.log(hashPassworld);
       try {
-        newUser.passworld = passworld;
+        newUser.passworld = hashPassworld;
         await this.usersService.postUser(newUser);
         res.send({
           status: "OK",
@@ -25,44 +27,100 @@ export class UsersControllers {
       }
     });
   }
-  // 1 Comparer le mail utilisateur
-  // 2 Mettre en place le Bycrypt.compare
-  // 3 Mettre en place le JsonWebToken
-
-  async postLoging(req: Request, res: Response) {
+  /*
+   * ICI CONNECTION AU SITE DE USER ET COMPARAISON DU MP AVEC BCRYPT.COMPARE
+   **/
+  async connexion(req: Request, res: Response) {
     const userChek = { ...req.body };
     console.log(userChek);
-    const userRecup = await this.usersService.logUser(userChek);
-    console.log(userRecup);
-    if (userRecup.length === 0) {
+    const userRecupMail = await this.usersService.logUser(userChek);
+    console.log(userRecupMail);
+    if (userRecupMail.length === 0) {
       res.status(404).send({
         status: "echec de connexion",
         message: "email invalide !",
       });
       return;
     }
-    const validPassword = await bcrypt.compare(
+    const isPasswordCorrect = await bcrypt.compare(
       userChek.passworld,
-      userRecup[0].hashpass
+      userRecupMail[0].hashPassworld
     );
-    console.log(validPassword);
-
-    if (validPassword === false) {
+    console.log(isPasswordCorrect);
+    if (isPasswordCorrect === false) {
       res.status(404).send({
         status: "echec de connexion",
         message: "Mot de Passe non valide, essaie encore",
       });
       return;
     }
+    // ****** ICI JE GENERE LE JWT ******EX sur le repo plant-api-authent**************
+    let secretKey;
+    if (process.env.SECRET_KEY_TOKEN) {
+      secretKey = process.env.SECRET_KEY_TOKEN;
 
-    // ****** GENERER LE JWT ********************
+      jsonwebtoken.sign(
+        {
+          sub: userRecupMail[0].id,
+        },
+        secretKey,
+        { expiresIn: "4h" },
 
-    // *********************
-
+        (err: any, token: string | undefined) => {
+          console.log("err", err);
+          console.log("Token", token);
+          console.log("Type Token", typeof token);
+          //Renvoyer le token
+          res.status(200).send({
+            token: token,
+            message: "Félicitation tu as eu ton token d'authentification",
+          });
+        }
+      );
+    } else {
+      res
+        .status(500)
+        .send({ message: "Merci de contacter votre administrateur" });
+    }
     res.send({
       status: "ok",
       message: "Bien joué, tu es connecté(e)(s)",
     });
+  }
+  /*Vérif de l'authencité d'un token en fonction de sa signature
+   *Coté API on récupè le token
+   **/
+  async verify(req: Request, res: Response) {
+    console.log("UserControllers - verify - headers : ", req.headers);
+    const tokenHeaders = req.headers.authorization;
+    console.log("tokenHeaders :", tokenHeaders);
+
+    let token;
+    if (tokenHeaders) {
+      token = tokenHeaders.split("")[1];
+      console.log("token :", token);
+    }
+    if (!token) {
+      res.status(401).send({ message: "Token manquand" });
+      return;
+    }
+    let secretKey: string;
+    if (process.env.SECRET_KEY_TOKEN) {
+      secretKey = process.env.SECRET_KEY_TOKEN;
+
+      jsonwebtoken.verify(token, secretKey, (err: any, decoded: any) => {
+        console.log("Err", err);
+        console.log("Verify 1", decoded);
+        if (!err) {
+          res.status(200).send({ message: "le token est ok" });
+        } else {
+          res
+            .status(403)
+            .send({ message: "le token est faux !!!!", error: err });
+          res.status(500).send({ message: "Contacter le dev" });
+        }
+      });
+    }
   }
 
   async deleteUser(req: Request, res: Response) {
@@ -80,22 +138,24 @@ export class UsersControllers {
     }
   }
 }
+//      CORRECTION
+// voir repository "experimentation-authentification"
 
 /*
-    bcrypt.compare("un autre mot de passe", hash, function (err, res) {
-      console.log(res)  
-  });
-  **/
-
-/*
-//var bcrypt = require('bcrypt');
-
-bcrypt.genSalt(10, function(err, salt) {
-    bcrypt.hash("mon mot de passe", salt, function(err, hash) {
-        // Store hash in your password DB.
-    });
+jwt.verify(token, secretKey, (err, decoded) => {
+  console.log("Err", err);
+  console.log("Verify", decoded);
 });
-bcrypt.compare("un autre mot de passe", hash, function(err, res) {
-    // res == false
-});
-**/
+* jwt.sign({
+  data: 'foobar'
+}, 'secret', { expiresIn: '1h' });
+
+
+    const validPassword = await bcrypt.compare(
+      userChek.passworld,
+      userRecup[0].hashpass
+    );
+    console.log(validPassword);
+
+*/
+// *********************
