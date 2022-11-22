@@ -10,13 +10,20 @@ export class UsersControllers {
   /*
    * ICI INSCRIPTION AU SITE DE USER ET MP GENERE AVEC LE HASH DE BCRYPT
    **/
-  async postUser(req: Request, res: Response) {
-    const newUser = { ...req.body };
-    bcrypt.hash(newUser.passworld, 10, async (err, hashPassworld) => {
-      console.log(hashPassworld);
+  async inscription(req: Request, res: Response) {
+    console.log("user controller inscription", req.body);
+    const newUser: Users = {
+      name: req.body.name,
+      email: req.body.email,
+      hashPassworld: req.body.passworld,
+    };
+    console.log(newUser);
+    bcrypt.hash(newUser.hashPassworld, 10, async (err, hashPassworld) => {
+      console.log(err);
       try {
-        newUser.passworld = hashPassworld;
-        await this.usersService.postUser(newUser);
+        newUser.hashPassworld = hashPassworld;
+        console.log(newUser.hashPassworld);
+        await this.usersService.inscription(newUser);
         res.send({
           status: "OK",
           message: "Félicitaion, vous vous êtes inscrit avec succés !",
@@ -55,7 +62,7 @@ export class UsersControllers {
       return;
     }
     // ****** ICI JE GENERE LE JWT ******EX sur le repo plant-api-authent**************
-    let secretKey;
+    let secretKey: string;
     if (process.env.SECRET_KEY_TOKEN) {
       secretKey = process.env.SECRET_KEY_TOKEN;
 
@@ -65,7 +72,6 @@ export class UsersControllers {
         },
         secretKey,
         { expiresIn: "4h" },
-
         (err: any, token: string | undefined) => {
           console.log("err", err);
           console.log("Token", token);
@@ -82,46 +88,17 @@ export class UsersControllers {
         .status(500)
         .send({ message: "Merci de contacter votre administrateur" });
     }
-    res.send({
-      status: "ok",
-      message: "Bien joué, tu es connecté(e)(s)",
-    });
   }
+
+  async getAllUsers(req: Request, res: Response) {
+    console.log("------------- MiddleWare getAllUsers ");
+    const users = await this.usersService.getAllUsers();
+    res.status(200).send({ data: users });
+  }
+
   /*Vérif de l'authencité d'un token en fonction de sa signature
    *Coté API on récupè le token
    **/
-  async verify(req: Request, res: Response) {
-    console.log("UserControllers - verify - headers : ", req.headers);
-    const tokenHeaders = req.headers.authorization;
-    console.log("tokenHeaders :", tokenHeaders);
-
-    let token;
-    if (tokenHeaders) {
-      token = tokenHeaders.split("")[1];
-      console.log("token :", token);
-    }
-    if (!token) {
-      res.status(401).send({ message: "Token manquand" });
-      return;
-    }
-    let secretKey: string;
-    if (process.env.SECRET_KEY_TOKEN) {
-      secretKey = process.env.SECRET_KEY_TOKEN;
-
-      jsonwebtoken.verify(token, secretKey, (err: any, decoded: any) => {
-        console.log("Err", err);
-        console.log("Verify 1", decoded);
-        if (!err) {
-          res.status(200).send({ message: "le token est ok" });
-        } else {
-          res
-            .status(403)
-            .send({ message: "le token est faux !!!!", error: err });
-          res.status(500).send({ message: "Contacter le dev" });
-        }
-      });
-    }
-  }
 
   async deleteUser(req: Request, res: Response) {
     const suppUser: Users = { ...req.body };
@@ -138,24 +115,3 @@ export class UsersControllers {
     }
   }
 }
-//      CORRECTION
-// voir repository "experimentation-authentification"
-
-/*
-jwt.verify(token, secretKey, (err, decoded) => {
-  console.log("Err", err);
-  console.log("Verify", decoded);
-});
-* jwt.sign({
-  data: 'foobar'
-}, 'secret', { expiresIn: '1h' });
-
-
-    const validPassword = await bcrypt.compare(
-      userChek.passworld,
-      userRecup[0].hashpass
-    );
-    console.log(validPassword);
-
-*/
-// *********************

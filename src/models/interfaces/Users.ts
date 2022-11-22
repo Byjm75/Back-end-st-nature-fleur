@@ -1,5 +1,5 @@
 interface Users {
-  id: number;
+  id?: number;
   name: string;
   hashPassworld: string;
   email: string;
